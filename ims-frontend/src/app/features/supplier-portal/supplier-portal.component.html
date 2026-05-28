@@ -1,0 +1,358 @@
+<div class="space-y-8">
+  <!-- Title Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Supplier Dashboard</h1>
+      <p class="text-zinc-555 text-sm mt-1">Review your partner profile, contact information, and supply statuses.</p>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <!-- Skeleton Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <app-skeleton type="card"></app-skeleton>
+      <app-skeleton type="card"></app-skeleton>
+      <app-skeleton type="card"></app-skeleton>
+    </div>
+    <div class="bg-white border border-zinc-200/80 p-6 rounded-2xl shadow-sm mt-8">
+      <app-skeleton type="line" [rows]="5"></app-skeleton>
+    </div>
+  } @else if (errorMsg()) {
+    <!-- Warning State for Incomplete Profile -->
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-zinc-800 space-y-4 max-w-2xl">
+      <div class="flex items-start gap-3">
+        <div class="p-2 bg-amber-100 text-amber-700 rounded-lg">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div class="space-y-1">
+          <h3 class="font-bold text-amber-900 text-lg">Supplier Profile Incomplete</h3>
+          <p class="text-sm text-amber-700">
+            {{ errorMsg() }}
+          </p>
+        </div>
+      </div>
+      <div class="text-xs text-amber-600 font-medium">
+        Please log out or reach out to the inventory administrator at admin&#64;company.com to finish setting up your supplier details.
+      </div>
+    </div>
+  } @else if (profile(); as data) {
+    <!-- KPI Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Company Info Card -->
+      <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-2xl p-6 transition-all duration-300 hover:border-zinc-300 shadow-sm">
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:scale-125 transition-transform"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-semibold text-zinc-505">Partner Details</span>
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-xl font-bold text-zinc-900 truncate">{{ data.companyName }}</h3>
+          <p class="text-xs text-zinc-505 mt-1">Contact: {{ data.contactPerson }}</p>
+        </div>
+      </div>
+
+      <!-- Account Status -->
+      <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-2xl p-6 transition-all duration-300 hover:border-zinc-300 shadow-sm">
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-500/5 rounded-full blur-xl group-hover:scale-125 transition-transform"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-semibold text-zinc-505">Account Status</span>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+               [ngClass]="data.isActive ? 'bg-emerald-50 border border-emerald-100 text-emerald-600' : 'bg-rose-50 border border-rose-100 text-rose-600'">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.952 11.952 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-2xl font-bold text-zinc-900">
+            {{ data.isActive ? 'Verified Active' : 'Inactive / Suspended' }}
+          </h3>
+          <p class="text-xs text-zinc-550 mt-1">Joined {{ data.createdAt | date:'dd MMM yyyy' }}</p>
+        </div>
+      </div>
+
+      <!-- Quick Navigation -->
+      <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-2xl p-6 transition-all duration-300 hover:border-zinc-300 shadow-sm">
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-purple-500/5 rounded-full blur-xl group-hover:scale-125 transition-transform"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-semibold text-zinc-505">Profile Operations</span>
+          <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4">
+          <a routerLink="/supplier-portal/profile" class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:underline">
+            Update Settings
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+          <p class="text-xs text-zinc-550 mt-1">Manage address and contact phone numbers</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supply Requests Section -->
+    <div class="bg-white border border-zinc-200/80 rounded-2xl p-6 space-y-6 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-zinc-900 flex items-center gap-2">
+            Supply Requests & Purchase Orders
+          </h2>
+          <p class="text-xs text-zinc-505 mt-1">Review incoming purchase requests sent by the inventory management team.</p>
+        </div>
+
+        <!-- Search & Filters -->
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Search input -->
+          <div class="relative w-full md:w-64">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              [ngModel]="rawSearchValue()"
+              (ngModelChange)="onSearchChange($event)"
+              placeholder="Search by request ref..."
+              class="w-full pl-9 pr-4 py-2 text-sm bg-zinc-50 border border-zinc-200 focus:border-emerald-500 focus:bg-white rounded-xl outline-none transition-all"
+            />
+          </div>
+
+          <!-- Status Dropdown -->
+          <div class="relative w-full md:w-44">
+            <select
+              [ngModel]="selectedStatus()"
+              (ngModelChange)="onStatusChange($event)"
+              class="w-full px-3 py-2 text-sm bg-zinc-50 border border-zinc-200 focus:border-emerald-500 focus:bg-white rounded-xl outline-none appearance-none cursor-pointer transition-all"
+            >
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-zinc-400">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="border border-zinc-200 rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-zinc-50 text-zinc-505 text-xs font-semibold border-b border-zinc-150">
+                <th class="p-4">Request Ref</th>
+                <th class="p-4">Requested Date</th>
+                <th class="p-4">Expected Delivery</th>
+                <th class="p-4 text-center">Items</th>
+                <th class="p-4 text-center">Status</th>
+                <th class="p-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 text-zinc-700">
+              @for (req of requests(); track req.requestId) {
+                <tr class="hover:bg-zinc-50/50 transition-colors">
+                  <td class="p-4 font-mono font-semibold text-zinc-900">{{ req.requestNumber }}</td>
+                  <td class="p-4 text-zinc-550">{{ req.requestedDate | date:'dd MMM yyyy HH:mm' }}</td>
+                  <td class="p-4 text-zinc-550">{{ req.expectedDeliveryDate ? (req.expectedDeliveryDate | date:'dd MMM yyyy') : '--' }}</td>
+                  <td class="p-4 text-center font-semibold">{{ req.purchaseRequestItems.length }}</td>
+                  <td class="p-4 text-center">
+                    <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-md border" [ngClass]="getStatusBadgeClass(req.requestStatus)">
+                      {{ req.requestStatus }}
+                    </span>
+                  </td>
+                  <td class="p-4 text-right">
+                    <button
+                      (click)="viewDetails(req)"
+                      class="px-3 py-1.5 text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 hover:border-zinc-300 rounded-lg transition-all"
+                    >
+                      Review & Action
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="p-12 text-center text-zinc-405">
+                    <svg class="w-12 h-12 text-zinc-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+                    </svg>
+                    <p class="text-sm font-semibold">No supply requests assigned to you.</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        @if (totalCount() > 0) {
+          <div class="px-6 py-4 bg-zinc-50 border-t border-zinc-150 flex items-center justify-between flex-wrap gap-4">
+            <span class="text-xs text-zinc-500 font-medium">
+              Showing {{ (page() - 1) * pageSize() + 1 }} to {{ Math.min(page() * pageSize(), totalCount()) }} of {{ totalCount() }} entries
+            </span>
+            <div class="flex items-center gap-1.5">
+              <button
+                [disabled]="page() === 1"
+                (click)="onPageChange(page() - 1)"
+                class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg disabled:opacity-40 transition-colors"
+                title="Previous Page"
+              >
+                <svg class="w-4 h-4 text-zinc-650" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              @for (p of [].constructor(totalPages()); track $index) {
+                <button
+                  (click)="onPageChange($index + 1)"
+                  [ngClass]="$index + 1 === page() ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm shadow-emerald-600/10' : 'bg-white border-zinc-200 text-zinc-650 hover:bg-zinc-50'"
+                  class="w-8 h-8 flex items-center justify-center border text-xs font-semibold rounded-lg transition-all"
+                >
+                  {{ $index + 1 }}
+                </button>
+              }
+
+              <button
+                [disabled]="page() === totalPages()"
+                (click)="onPageChange(page() + 1)"
+                class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg disabled:opacity-40 transition-colors"
+                title="Next Page"
+              >
+                <svg class="w-4 h-4 text-zinc-650" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+  }
+
+  <!-- DETAILS MODAL -->
+  @if (selectedRequest(); as req) {
+    <div class="fixed inset-0 z-40 bg-zinc-900/30 backdrop-blur-sm flex items-center justify-center p-4" (click)="closeDetails()">
+      <div class="w-full max-w-3xl bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <div>
+            <h2 class="text-lg font-bold text-zinc-900">Request: {{ req.requestNumber }}</h2>
+            <p class="text-xs text-zinc-500 mt-0.5">Assigned to: {{ req.supplierCompanyName }}</p>
+          </div>
+          <button (click)="closeDetails()" class="text-zinc-400 hover:text-zinc-650 transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Details grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 bg-zinc-50 p-4 border border-zinc-200 rounded-xl text-sm">
+          <div>
+            <span class="text-xs font-semibold text-zinc-400 block uppercase">Requested Date</span>
+            <span class="text-zinc-700 font-medium">{{ req.requestedDate | date:'dd MMM yyyy HH:mm' }}</span>
+          </div>
+          <div>
+            <span class="text-xs font-semibold text-zinc-400 block uppercase">Expected Delivery</span>
+            <span class="text-zinc-700 font-medium">{{ req.expectedDeliveryDate ? (req.expectedDeliveryDate | date:'dd MMM yyyy') : '--' }}</span>
+          </div>
+          <div>
+            <span class="text-xs font-semibold text-zinc-400 block uppercase">Request Status</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-md border mt-0.5" [ngClass]="getStatusBadgeClass(req.requestStatus)">
+              {{ req.requestStatus }}
+            </span>
+          </div>
+        </div>
+
+        @if (req.notes) {
+          <div class="bg-blue-50/20 border border-blue-100/50 p-3 rounded-xl">
+            <span class="text-xs font-bold text-zinc-650 block mb-1">Notes / Logs</span>
+            <p class="text-xs text-zinc-700 whitespace-pre-line">{{ req.notes }}</p>
+          </div>
+        }
+
+        <!-- Items Table -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-bold text-zinc-800">Supply Items</h3>
+          <div class="border border-zinc-200 rounded-xl overflow-hidden">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-zinc-50 text-zinc-500 font-semibold border-b border-zinc-150">
+                  <th class="p-3">Product Name</th>
+                  <th class="p-3">Barcode</th>
+                  <th class="p-3 text-right">Requested Qty</th>
+                  <th class="p-3 text-right">Delivered Qty</th>
+                  <th class="p-3 text-right">Target Cost</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-100 text-zinc-700">
+                @for (item of req.purchaseRequestItems; track item.requestItemId) {
+                  <tr>
+                    <td class="p-3 font-semibold text-zinc-900">{{ item.productName }}</td>
+                    <td class="p-3 text-zinc-505 font-mono">{{ item.productBarcode }}</td>
+                    <td class="p-3 text-right">{{ item.requestedQuantity }}</td>
+                    <td class="p-3 text-right font-semibold text-zinc-400">
+                      {{ item.deliveredQuantity !== null ? item.deliveredQuantity : '--' }}
+                    </td>
+                    <td class="p-3 text-right font-semibold text-zinc-900">Rs. {{ item.unitCost | number:'1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Action Area -->
+        @if (req.requestStatus === 'Pending') {
+          <div class="border-t border-zinc-150 pt-4 space-y-4">
+            @if (isRejecting()) {
+              <div class="space-y-2">
+                <label class="text-xs font-semibold text-zinc-600">Please provide a reason for rejection:</label>
+                <textarea [(ngModel)]="rejectionNotes" rows="2" class="w-full px-3 py-2 bg-white border border-zinc-200 focus:border-rose-500 rounded-xl text-xs outline-none resize-none" placeholder="e.g. Insufficient raw materials..."></textarea>
+              </div>
+              <div class="flex gap-3">
+                <button (click)="isRejecting.set(false)" class="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-semibold text-xs rounded-xl transition-all">
+                  Back
+                </button>
+                <button (click)="onReject(req)" [disabled]="!rejectionNotes.trim()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-xl shadow-md transition-all disabled:opacity-50">
+                  Confirm Rejection
+                </button>
+              </div>
+            } @else {
+              <div class="flex gap-3">
+                <button (click)="isRejecting.set(true)" class="flex-1 py-2 bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 font-semibold text-sm rounded-xl transition-all">
+                  Reject Order
+                </button>
+                <button (click)="onAccept(req)" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all">
+                  Accept Order
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="flex gap-3 border-t border-zinc-100 pt-4">
+            <button (click)="closeDetails()" class="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-semibold text-sm rounded-xl transition-all">
+              Close
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,373 @@
+<div class="space-y-8">
+  <!-- Title Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Reports</h1>
+      <p class="text-zinc-550 text-sm mt-1">Generate, analyze, and download partner reports for catalog products and order pipelines.</p>
+    </div>
+  </div>
+
+  <!-- Navigation Tab Bar -->
+  <div class="flex border-b border-zinc-200">
+    <button
+      (click)="switchTab('inventory')"
+      [class]="activeTab() === 'inventory'
+        ? 'border-emerald-600 text-emerald-600 border-b-2 font-bold px-6 py-3 text-sm'
+        : 'text-zinc-400 hover:text-zinc-650 px-6 py-3 text-sm font-medium'"
+    >
+      Supplied Inventory Report
+    </button>
+    <button
+      (click)="switchTab('purchase-requests')"
+      [class]="activeTab() === 'purchase-requests'
+        ? 'border-emerald-600 text-emerald-600 border-b-2 font-bold px-6 py-3 text-sm'
+        : 'text-zinc-400 hover:text-zinc-650 px-6 py-3 text-sm font-medium'"
+    >
+      Supply Orders History
+    </button>
+  </div>
+
+  <!-- Filter & Action Panel -->
+  <div class="bg-white border border-zinc-200/85 p-6 rounded-2xl shadow-sm space-y-6">
+    <div [class]="activeTab() === 'inventory' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'">
+      @if (activeTab() === 'inventory') {
+        <!-- Inventory Category -->
+        <div>
+          <label class="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2">Category</label>
+          <select
+            [ngModel]="invCategoryId()"
+            (ngModelChange)="invCategoryId.set($event); page.set(1); generateReport()"
+            class="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 focus:border-emerald-500 rounded-xl text-sm outline-none transition-all cursor-pointer"
+          >
+            <option [value]="null">All Categories</option>
+            @for (cat of categories(); track cat.categoryId) {
+              <option [value]="cat.categoryId">{{ cat.name }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Inventory Stock Status -->
+        <div>
+          <label class="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2">Stock Status</label>
+          <select
+            [ngModel]="invStatus()"
+            (ngModelChange)="invStatus.set($event); page.set(1); generateReport()"
+            class="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 focus:border-emerald-500 rounded-xl text-sm outline-none transition-all cursor-pointer"
+          >
+            <option value="All">All Items</option>
+            <option value="Normal">In Stock (Normal)</option>
+            <option value="LowStock">Low Stock Alert</option>
+            <option value="OutOfStock">Out of Stock</option>
+          </select>
+        </div>
+      } @else {
+        <!-- PR Status -->
+        <div>
+          <label class="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2">Order Status</label>
+          <select
+            [ngModel]="prStatus()"
+            (ngModelChange)="prStatus.set($event); page.set(1); generateReport()"
+            class="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 focus:border-emerald-500 rounded-xl text-sm outline-none transition-all cursor-pointer"
+          >
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Accepted">Accepted</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <!-- Date Preset Filter -->
+        <div>
+          <label class="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2">Date Preset</label>
+          <select
+            [ngModel]="prPreset()"
+            (ngModelChange)="onPrPresetChange($event)"
+            class="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 focus:border-emerald-500 rounded-xl text-sm outline-none transition-all cursor-pointer font-medium"
+          >
+            <option value="all">All Time</option>
+            <option value="last-week">Last Week</option>
+            <option value="last-month">Last Month</option>
+            <option value="last-3-months">Last 3 Months</option>
+            <option value="last-1-year">Last 1 Year</option>
+            @if (prPreset() === 'custom') {
+              <option value="custom">Custom Range</option>
+            }
+          </select>
+        </div>
+
+        <!-- Date Range filters -->
+        <div>
+          <label class="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2">Start Date</label>
+          <input
+            type="date"
+            [ngModel]="prStartDate()"
+            (ngModelChange)="onDateInputChange('start', $event)"
+            class="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 focus:border-emerald-500 rounded-xl text-sm outline-none transition-all cursor-pointer"
+          />
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2">End Date</label>
+          <input
+            type="date"
+            [ngModel]="prEndDate()"
+            (ngModelChange)="onDateInputChange('end', $event)"
+            class="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 focus:border-emerald-500 rounded-xl text-sm outline-none transition-all cursor-pointer"
+          />
+        </div>
+      }
+    </div>
+
+    <!-- Actions Row -->
+    <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-zinc-100">
+      <button
+        (click)="clearFilters()"
+        class="px-4 py-2 text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 hover:bg-zinc-50 hover:border-zinc-300 rounded-xl transition-all"
+      >
+        Clear All Filters
+      </button>
+
+      <div class="flex items-center gap-3">
+        <!-- Export CSV Button -->
+        <button
+          (click)="exportCsv()"
+          class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-zinc-700 bg-white border border-zinc-200 hover:border-zinc-300 rounded-xl transition-all shadow-sm"
+        >
+          <svg class="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Export CSV
+        </button>
+
+        <!-- Export PDF Button -->
+        <button
+          (click)="downloadPdf()"
+          class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-md shadow-emerald-500/10"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Summaries & Previews -->
+  @if (isGenerating()) {
+    <div class="h-60 flex flex-col items-center justify-center bg-white border border-zinc-200 rounded-2xl shadow-sm text-zinc-400">
+      <div class="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+      <p class="text-sm font-semibold">Generating report preview...</p>
+    </div>
+  } @else {
+    <!-- Inventory Preview Mode -->
+    @if (activeTab() === 'inventory') {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-zinc-50 border border-zinc-200 p-5 rounded-2xl">
+          <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Supplied SKU Count</span>
+          <span class="text-2xl font-extrabold text-zinc-950 mt-1 block">{{ inventorySkuCount() }}</span>
+        </div>
+        <div class="bg-zinc-50 border border-zinc-200 p-5 rounded-2xl">
+          <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Quantity In Stock</span>
+          <span class="text-2xl font-extrabold text-zinc-950 mt-1 block">{{ inventoryTotalQuantity() | number }}</span>
+        </div>
+        <div class="bg-zinc-50 border border-zinc-200 p-5 rounded-2xl">
+          <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Low Stock SKU Alerts</span>
+          <span class="text-2xl font-extrabold text-zinc-950 mt-1 block" [class.text-rose-650]="inventoryLowStockCount() > 0">{{ inventoryLowStockCount() }}</span>
+        </div>
+        <div class="bg-zinc-50 border border-zinc-200 p-5 rounded-2xl">
+          <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Inventory Value Valuation</span>
+          <span class="text-xl font-extrabold text-zinc-950 mt-1 block">Rs. {{ inventoryValuationSum() | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div class="bg-white border border-zinc-200/85 rounded-2xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-zinc-50 text-zinc-500 text-xs font-semibold border-b border-zinc-150">
+                <th class="p-4">Barcode</th>
+                <th class="p-4">Product Name</th>
+                <th class="p-4">Category</th>
+                <th class="p-4 text-right">Price</th>
+                <th class="p-4 text-right">Cost Price</th>
+                <th class="p-4 text-center">In Stock</th>
+                <th class="p-4 text-right">Cost Valuation</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 text-zinc-700">
+              @for (item of pagedInventoryData(); track item.productId) {
+                <tr class="hover:bg-zinc-50/50 transition-colors">
+                  <td class="p-4 font-mono text-zinc-500 text-xs">{{ item.barcode }}</td>
+                  <td class="p-4 font-semibold text-zinc-900">{{ item.productName }}</td>
+                  <td class="p-4 text-zinc-550 text-xs">{{ item.categoryName }}</td>
+                  <td class="p-4 text-right font-medium">Rs. {{ item.price | number:'1.2-2' }}</td>
+                  <td class="p-4 text-right font-medium text-zinc-550">Rs. {{ item.costPrice | number:'1.2-2' }}</td>
+                  <td class="p-4 text-center font-bold" [class.text-rose-650]="item.isLowStock">{{ item.quantity }}</td>
+                  <td class="p-4 text-right font-bold text-zinc-900">Rs. {{ item.totalCostValue | number:'1.2-2' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="p-12 text-center text-zinc-400">
+                    No inventory records match the selected parameters.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        @if (inventoryData().length > 0) {
+          <div class="px-6 py-4 bg-zinc-50 border-t border-zinc-150 flex items-center justify-between flex-wrap gap-4">
+            <span class="text-xs text-zinc-500 font-medium">
+              Showing {{ (page() - 1) * pageSize() + 1 }} to {{ Math.min(page() * pageSize(), inventoryData().length) }} of {{ inventoryData().length }} entries
+            </span>
+            <div class="flex items-center gap-1.5">
+              <button
+                [disabled]="page() === 1"
+                (click)="onPageChange(page() - 1)"
+                class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg text-zinc-650 transition-all disabled:opacity-40 cursor-pointer"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              @for (p of [].constructor(totalPages()); track $index) {
+                <button
+                  (click)="onPageChange($index + 1)"
+                  [ngClass]="$index + 1 === page() ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm shadow-emerald-600/10' : 'bg-white border-zinc-200 text-zinc-655 hover:bg-zinc-50'"
+                  class="w-8 h-8 flex items-center justify-center border text-xs font-semibold rounded-lg transition-all cursor-pointer"
+                >
+                  {{ $index + 1 }}
+                </button>
+              }
+
+              <button
+                [disabled]="page() === totalPages()"
+                (click)="onPageChange(page() + 1)"
+                class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg text-zinc-650 transition-all disabled:opacity-40 cursor-pointer"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Orders Preview Mode -->
+    @if (activeTab() === 'purchase-requests') {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-zinc-50 border border-zinc-200 p-5 rounded-2xl">
+          <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Total Supply Orders</span>
+          <span class="text-2xl font-extrabold text-zinc-950 mt-1 block">{{ prTotalCount() }}</span>
+        </div>
+        <div class="bg-zinc-50 border border-zinc-200 p-5 rounded-2xl">
+          <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Pending Actions</span>
+          <span class="text-2xl font-extrabold text-zinc-950 mt-1 block" [class.text-amber-650]="prPendingCount() > 0">{{ prPendingCount() }}</span>
+        </div>
+        <div class="bg-zinc-50 border border-zinc-200 p-5 rounded-2xl">
+          <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Fulfillments Delivered</span>
+          <span class="text-2xl font-extrabold text-zinc-950 mt-1 block">{{ prDeliveredCount() }}</span>
+        </div>
+        <div class="bg-zinc-50 border border-zinc-200 p-5 rounded-2xl">
+          <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Total Order Turnover</span>
+          <span class="text-xl font-extrabold text-zinc-950 mt-1 block">Rs. {{ prTotalCostSum() | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div class="bg-white border border-zinc-200/85 rounded-2xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-zinc-50 text-zinc-500 text-xs font-semibold border-b border-zinc-150">
+                <th class="p-4">Ref Order #</th>
+                <th class="p-4">Requested Date</th>
+                <th class="p-4">Status</th>
+                <th class="p-4 text-center">Items</th>
+                <th class="p-4 text-right">Estimated Cost</th>
+                <th class="p-4">Expected Delivery</th>
+                <th class="p-4">Delivered Date</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 text-zinc-700">
+              @for (req of pagedPurchaseRequestData(); track req.requestId) {
+                <tr class="hover:bg-zinc-50/50 transition-colors">
+                  <td class="p-4 font-mono font-semibold text-zinc-900">{{ req.requestNumber }}</td>
+                  <td class="p-4 text-zinc-500 text-xs">{{ req.requestedDate | date:'dd MMM yyyy HH:mm' }}</td>
+                  <td class="p-4">
+                    <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-md border"
+                      [class.bg-amber-50]="req.status === 'Pending'" [class.text-amber-700]="req.status === 'Pending'" [class.border-amber-200]="req.status === 'Pending'"
+                      [class.bg-blue-50]="req.status === 'Accepted'" [class.text-blue-700]="req.status === 'Accepted'" [class.border-blue-200]="req.status === 'Accepted'"
+                      [class.bg-emerald-50]="req.status === 'Delivered'" [class.text-emerald-700]="req.status === 'Delivered'" [class.border-emerald-250]="req.status === 'Delivered'"
+                      [class.bg-rose-50]="req.status === 'Rejected'" [class.text-rose-700]="req.status === 'Rejected'" [class.border-rose-200]="req.status === 'Rejected'"
+                      [class.bg-zinc-100]="req.status === 'Cancelled'" [class.text-zinc-505]="req.status === 'Cancelled'" [class.border-zinc-300]="req.status === 'Cancelled'"
+                    >
+                      {{ req.status }}
+                    </span>
+                  </td>
+                  <td class="p-4 text-center font-bold">{{ req.itemCount }}</td>
+                  <td class="p-4 text-right font-bold text-zinc-900">Rs. {{ req.totalCost | number:'1.2-2' }}</td>
+                  <td class="p-4 text-zinc-555 text-xs">{{ req.expectedDeliveryDate ? (req.expectedDeliveryDate | date:'dd MMM yyyy') : '—' }}</td>
+                  <td class="p-4 text-zinc-555 text-xs">{{ req.deliveredDate ? (req.deliveredDate | date:'dd MMM yyyy HH:mm') : '—' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="p-12 text-center text-zinc-400">
+                    No purchase request records match the selected parameters.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        @if (purchaseRequestData().length > 0) {
+          <div class="px-6 py-4 bg-zinc-50 border-t border-zinc-150 flex items-center justify-between flex-wrap gap-4">
+            <span class="text-xs text-zinc-500 font-medium">
+              Showing {{ (page() - 1) * pageSize() + 1 }} to {{ Math.min(page() * pageSize(), purchaseRequestData().length) }} of {{ purchaseRequestData().length }} entries
+            </span>
+            <div class="flex items-center gap-1.5">
+              <button
+                [disabled]="page() === 1"
+                (click)="onPageChange(page() - 1)"
+                class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg text-zinc-650 transition-all disabled:opacity-40 cursor-pointer"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              @for (p of [].constructor(totalPages()); track $index) {
+                <button
+                  (click)="onPageChange($index + 1)"
+                  [ngClass]="$index + 1 === page() ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm shadow-emerald-600/10' : 'bg-white border-zinc-200 text-zinc-655 hover:bg-zinc-50'"
+                  class="w-8 h-8 flex items-center justify-center border text-xs font-semibold rounded-lg transition-all cursor-pointer"
+                >
+                  {{ $index + 1 }}
+                </button>
+              }
+
+              <button
+                [disabled]="page() === totalPages()"
+                (click)="onPageChange(page() + 1)"
+                class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg text-zinc-650 transition-all disabled:opacity-40 cursor-pointer"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

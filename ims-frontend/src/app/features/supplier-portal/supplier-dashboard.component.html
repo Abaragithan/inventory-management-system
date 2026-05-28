@@ -1,0 +1,308 @@
+<div class="space-y-8">
+  <!-- Title Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Partner Dashboard</h1>
+      <p class="text-zinc-500 text-sm mt-1">Real-time overview of your products, order pipelines, and stock status updates.</p>
+    </div>
+    <!-- Date Filter Preset -->
+    <div class="w-full sm:w-48 shrink-0">
+      <select
+        [ngModel]="selectedDateRange()"
+        (ngModelChange)="selectedDateRange.set($event); onDateRangeChange()"
+        class="w-full px-3 py-2.5 bg-white border border-zinc-200 focus:border-emerald-500 rounded-xl text-xs font-semibold text-zinc-700 outline-none transition-all cursor-pointer shadow-sm"
+      >
+        <option value="all">All Time</option>
+        <option value="last-week">Last Week</option>
+        <option value="last-month">Last Month</option>
+        <option value="last-3-months">Last 3 Months</option>
+        <option value="last-1-year">Last 1 Year</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <!-- Skeleton Loading -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <app-skeleton type="card"></app-skeleton>
+      <app-skeleton type="card"></app-skeleton>
+      <app-skeleton type="card"></app-skeleton>
+      <app-skeleton type="card"></app-skeleton>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-zinc-200">
+        <app-skeleton type="line" [rows]="5"></app-skeleton>
+      </div>
+      <div class="bg-white p-6 rounded-2xl border border-zinc-200">
+        <app-skeleton type="line" [rows]="5"></app-skeleton>
+      </div>
+    </div>
+  } @else if (summary(); as data) {
+    <!-- KPI Indicators -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Total Products -->
+      <div class="relative overflow-hidden bg-white border border-zinc-200/85 p-6 rounded-2xl shadow-sm transition-all duration-300 hover:border-zinc-300">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-blue-500/5 rounded-full blur-lg"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Catalog Products</span>
+          <div class="p-2 bg-blue-50 border border-blue-100 text-blue-600 rounded-xl">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4">
+          <span class="text-3xl font-extrabold text-zinc-950">{{ data.totalProducts }}</span>
+          <p class="text-xs text-zinc-400 mt-1">Unique items supplied</p>
+        </div>
+      </div>
+
+      <!-- Total Orders Received -->
+      <div class="relative overflow-hidden bg-white border border-zinc-200/85 p-6 rounded-2xl shadow-sm transition-all duration-300 hover:border-zinc-300">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-purple-500/5 rounded-full blur-lg"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Requests</span>
+          <div class="p-2 bg-purple-50 border border-purple-100 text-purple-600 rounded-xl">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4">
+          <span class="text-3xl font-extrabold text-zinc-950">{{ data.totalOrders }}</span>
+          <p class="text-xs text-zinc-400 mt-1">Total requests received</p>
+        </div>
+      </div>
+
+      <!-- Pending Action -->
+      <div class="relative overflow-hidden bg-white border border-zinc-200/85 p-6 rounded-2xl shadow-sm transition-all duration-300 hover:border-zinc-300">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-amber-500/5 rounded-full blur-lg"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Pending Orders</span>
+          <div class="p-2 bg-amber-50 border border-amber-100 text-amber-600 rounded-xl">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4">
+          <span class="text-3xl font-extrabold text-zinc-950">{{ data.pendingOrders }}</span>
+          <p class="text-xs text-zinc-400 mt-1">Awaiting your response</p>
+        </div>
+      </div>
+
+      <!-- Delivered Orders -->
+      <div class="relative overflow-hidden bg-white border border-zinc-200/85 p-6 rounded-2xl shadow-sm transition-all duration-300 hover:border-zinc-300">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-500/5 rounded-full blur-lg"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Completed Orders</span>
+          <div class="p-2 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4">
+          <span class="text-3xl font-extrabold text-zinc-950">{{ data.deliveredOrders }}</span>
+          <p class="text-xs text-zinc-400 mt-1">Successfully fulfilled</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Recent Supply Requests -->
+      <div class="lg:col-span-2 bg-white border border-zinc-200/85 p-6 rounded-2xl shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-zinc-900">Recent Supply Requests</h2>
+            <p class="text-xs text-zinc-400">Your latest incoming purchase orders.</p>
+          </div>
+          <a routerLink="/supplier-portal/orders" class="text-xs font-semibold text-emerald-650 hover:text-emerald-700 hover:underline">
+            View All Orders &rarr;
+          </a>
+        </div>
+
+        <div class="border border-zinc-150 rounded-xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-zinc-50 text-zinc-500 text-xs font-semibold border-b border-zinc-150">
+                  <th class="p-4">Ref Number</th>
+                  <th class="p-4">Requested Date</th>
+                  <th class="p-4 text-center">Items</th>
+                  <th class="p-4 text-center">Status</th>
+                  <th class="p-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-100 text-zinc-700">
+                @for (req of data.recentOrders; track req.requestId) {
+                  <tr class="hover:bg-zinc-50/50 transition-colors">
+                    <td class="p-4 font-mono font-semibold text-zinc-900">{{ req.requestNumber }}</td>
+                    <td class="p-4 text-zinc-500 text-xs">{{ req.requestedDate | date:'dd MMM yyyy HH:mm' }}</td>
+                    <td class="p-4 text-center font-bold">{{ req.purchaseRequestItems.length }}</td>
+                    <td class="p-4 text-center">
+                      <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-md border" [ngClass]="getStatusBadgeClass(req.requestStatus)">
+                        {{ req.requestStatus }}
+                      </span>
+                    </td>
+                    <td class="p-4 text-right">
+                      <button (click)="viewDetails(req)" class="px-2.5 py-1 text-xs bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-700 rounded-lg font-semibold transition-all">
+                        Review
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="p-8 text-center text-zinc-400">
+                      No recent orders found.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Low Stock Warnings -->
+      <div class="bg-white border border-zinc-200/85 p-6 rounded-2xl shadow-sm space-y-4">
+        <div>
+          <h2 class="text-lg font-bold text-zinc-900">Low Stock Warnings</h2>
+          <p class="text-xs text-zinc-400">Products you supply that are running low in the warehouse.</p>
+        </div>
+
+        <div class="space-y-3">
+          @for (prod of data.lowStockProducts; track prod.productId) {
+            <div class="flex items-center justify-between p-3 bg-zinc-50 border border-zinc-200/60 rounded-xl">
+              <div class="min-w-0 pr-3">
+                <span class="font-semibold text-xs text-zinc-900 block truncate">{{ prod.name }}</span>
+                <span class="text-[10px] text-zinc-400 font-mono">{{ prod.barcode }}</span>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="inline-flex items-center px-2 py-0.5 text-xs font-bold rounded-md bg-rose-50 text-rose-700 border border-rose-100">
+                  Qty: {{ prod.quantity }}
+                </span>
+                <span class="text-[9px] text-zinc-400 block mt-0.5">Threshold: {{ prod.reorderLevel }}</span>
+              </div>
+            </div>
+          } @empty {
+            <div class="p-8 text-center text-zinc-400 text-xs border border-dashed border-zinc-200 rounded-xl">
+              All items are sufficiently stocked.
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- DETAILS ACTION MODAL -->
+  @if (selectedRequest(); as req) {
+    <div class="fixed inset-0 z-40 bg-zinc-900/30 backdrop-blur-sm flex items-center justify-center p-4" (click)="closeDetails()">
+      <div class="w-full max-w-3xl bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <div>
+            <h2 class="text-lg font-bold text-zinc-900">Request: {{ req.requestNumber }}</h2>
+            <p class="text-xs text-zinc-500 mt-0.5">Assigned to: {{ req.supplierCompanyName }}</p>
+          </div>
+          <button (click)="closeDetails()" class="text-zinc-400 hover:text-zinc-650 transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Details grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 bg-zinc-50 p-4 border border-zinc-200 rounded-xl text-sm">
+          <div>
+            <span class="text-xs font-semibold text-zinc-400 block uppercase">Requested Date</span>
+            <span class="text-zinc-700 font-medium">{{ req.requestedDate | date:'dd MMM yyyy HH:mm' }}</span>
+          </div>
+          <div>
+            <span class="text-xs font-semibold text-zinc-400 block uppercase">Expected Delivery</span>
+            <span class="text-zinc-700 font-medium">{{ req.expectedDeliveryDate ? (req.expectedDeliveryDate | date:'dd MMM yyyy') : '--' }}</span>
+          </div>
+          <div>
+            <span class="text-xs font-semibold text-zinc-400 block uppercase">Request Status</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-md border mt-0.5" [ngClass]="getStatusBadgeClass(req.requestStatus)">
+              {{ req.requestStatus }}
+            </span>
+          </div>
+        </div>
+
+        @if (req.notes) {
+          <div class="bg-blue-50/20 border border-blue-100/50 p-3 rounded-xl">
+            <span class="text-xs font-bold text-zinc-650 block mb-1">Notes / Logs</span>
+            <p class="text-xs text-zinc-700 whitespace-pre-line">{{ req.notes }}</p>
+          </div>
+        }
+
+        <!-- Items Table -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-bold text-zinc-800">Supply Items</h3>
+          <div class="border border-zinc-200 rounded-xl overflow-hidden">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-zinc-50 text-zinc-500 font-semibold border-b border-zinc-150">
+                  <th class="p-3">Product Name</th>
+                  <th class="p-3">Barcode</th>
+                  <th class="p-3 text-right">Requested Qty</th>
+                  <th class="p-3 text-right">Delivered Qty</th>
+                  <th class="p-3 text-right">Target Cost</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-100 text-zinc-700">
+                @for (item of req.purchaseRequestItems; track item.requestItemId) {
+                  <tr>
+                    <td class="p-3 font-semibold text-zinc-900">{{ item.productName }}</td>
+                    <td class="p-3 text-zinc-505 font-mono">{{ item.productBarcode }}</td>
+                    <td class="p-3 text-right">{{ item.requestedQuantity }}</td>
+                    <td class="p-3 text-right font-semibold text-zinc-400">
+                      {{ item.deliveredQuantity !== null ? item.deliveredQuantity : '--' }}
+                    </td>
+                    <td class="p-3 text-right font-semibold text-zinc-900">Rs. {{ item.unitCost | number:'1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Action Area -->
+        @if (req.requestStatus === 'Pending') {
+          <div class="border-t border-zinc-150 pt-4 space-y-4">
+            @if (isRejecting()) {
+              <div class="space-y-2">
+                <label class="text-xs font-semibold text-zinc-600">Please provide a reason for rejection:</label>
+                <textarea [(ngModel)]="rejectionNotes" rows="2" class="w-full px-3 py-2 bg-white border border-zinc-200 focus:border-rose-500 rounded-xl text-xs outline-none resize-none" placeholder="e.g. Insufficient raw materials..."></textarea>
+              </div>
+              <div class="flex gap-3">
+                <button (click)="isRejecting.set(false)" class="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-semibold text-xs rounded-xl transition-all">
+                  Back
+                </button>
+                <button (click)="onReject(req)" [disabled]="!rejectionNotes.trim()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-xl shadow-md transition-all disabled:opacity-50">
+                  Confirm Rejection
+                </button>
+              </div>
+            } @else {
+              <div class="flex gap-3">
+                <button (click)="isRejecting.set(true)" class="flex-1 py-2 bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 font-semibold text-sm rounded-xl transition-all">
+                  Reject Order
+                </button>
+                <button (click)="onAccept(req)" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all">
+                  Accept Order
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="flex gap-3 border-t border-zinc-100 pt-4">
+            <button (click)="closeDetails()" class="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-semibold text-sm rounded-xl transition-all">
+              Close
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

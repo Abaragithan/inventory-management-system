@@ -1,0 +1,487 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-zinc-900">User Accounts</h1>
+      <p class="text-zinc-555 text-sm mt-1">Manage user access permissions, swap roles, and register new team members.</p>
+    </div>
+    <button
+      (click)="openCreateModal()"
+      class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-sm transition-all flex items-center gap-2 self-start"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Add User
+    </button>
+  </div>
+
+  <!-- Statistics Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+    <!-- Total Accounts -->
+    <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-xl p-4 transition-all duration-300 hover:border-zinc-300 shadow-sm flex items-center gap-4">
+      <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-blue-500/5 rounded-full blur-lg group-hover:scale-125 transition-transform"></div>
+      <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Total Accounts</span>
+        <h3 class="text-2xl font-bold text-zinc-900 mt-0.5 leading-none">{{ totalAccountsCount() }}</h3>
+        <p class="text-[11px] text-zinc-500 mt-1 truncate">Registered team members</p>
+      </div>
+    </div>
+
+    <!-- Administrators -->
+    <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-xl p-4 transition-all duration-300 hover:border-zinc-300 shadow-sm flex items-center gap-4">
+      <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-zinc-950/5 rounded-full blur-lg group-hover:scale-125 transition-transform"></div>
+      <div class="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-white flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Administrators</span>
+        <h3 class="text-2xl font-bold text-zinc-900 mt-0.5 leading-none">{{ adminCount() }}</h3>
+        <p class="text-[11px] text-zinc-500 mt-1 truncate">Full system authority</p>
+      </div>
+    </div>
+
+    <!-- Inventory Managers -->
+    <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-xl p-4 transition-all duration-300 hover:border-zinc-300 shadow-sm flex items-center gap-4">
+      <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-blue-500/5 rounded-full blur-lg group-hover:scale-125 transition-transform"></div>
+      <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Inv. Managers</span>
+        <h3 class="text-2xl font-bold text-zinc-900 mt-0.5 leading-none">{{ managerCount() }}</h3>
+        <p class="text-[11px] text-zinc-500 mt-1 truncate">Stock control operations</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Staff Alert -->
+  @if (pendingStaffCount() > 0) {
+    <div class="flex items-start gap-3 px-5 py-4 bg-amber-50 border border-amber-200 rounded-2xl shadow-sm">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-amber-800">
+          {{ pendingStaffCount() }} pending account{{ pendingStaffCount() > 1 ? 's' : '' }} awaiting role assignment
+        </p>
+        <p class="text-xs text-amber-600 mt-0.5">
+          These users registered but have the Staff role. Edit them to assign a proper role and grant access.
+        </p>
+      </div>
+    </div>
+  }
+
+  <!-- Toolbar -->
+  <div class="flex flex-col md:flex-row gap-4 p-4 bg-white border border-zinc-200 shadow-sm rounded-2xl">
+    <div class="relative flex-1">
+      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </span>
+      <input
+        type="text"
+        [ngModel]="rawSearchValue()"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search by email..."
+        class="w-full pl-10 pr-4 py-2 bg-white border border-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl text-sm text-zinc-900 placeholder-zinc-400 transition-all outline-none"
+      />
+    </div>
+    <div class="w-full md:w-48">
+      <select
+        [ngModel]="roleFilter()"
+        (ngModelChange)="onRoleFilterChange($event)"
+        class="w-full px-3 py-2 bg-white border border-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl text-sm text-zinc-900 transition-all outline-none"
+      >
+        <option value="">All Roles</option>
+        <option value="Admin">Admin</option>
+        <option value="InventoryManager">Inventory Manager</option>
+        <option value="Supplier">Supplier</option>
+        <option value="Staff">Staff (Pending)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table View -->
+  @if (isLoading()) {
+    <div class="p-6 bg-white border border-zinc-200 rounded-2xl shadow-sm">
+      <app-skeleton type="table" [rows]="5"></app-skeleton>
+    </div>
+  } @else {
+    <div class="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-zinc-200 text-xs font-semibold text-zinc-500 uppercase bg-zinc-100/50">
+              <th class="px-6 py-4">User Account</th>
+              <th class="px-6 py-4">Security Role</th>
+              <th class="px-6 py-4">Created Date</th>
+              <th class="px-6 py-4 text-center">Status</th>
+              <th class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-100">
+            @for (usr of users(); track usr.userId) {
+              <tr class="hover:bg-zinc-100/40 transition-all text-sm"
+                  [ngClass]="usr.role === 'Staff' ? 'bg-amber-50/30' : ''">
+                <td class="px-6 py-4">
+                  <div class="font-semibold text-zinc-900">{{ usr.email }}</div>
+                  @if (usr.role === 'Staff') {
+                    <div class="text-[10px] text-amber-600 font-medium mt-0.5">⏳ Awaiting role assignment</div>
+                  }
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-block px-2.5 py-0.5 text-[10px] font-semibold rounded-full border uppercase tracking-wider"
+                    [ngClass]="getRoleBadgeClass(usr.role)"
+                  >
+                    {{ usr.role === 'InventoryManager' ? 'Inv. Manager' : usr.role }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-zinc-500">{{ usr.createdAt | date:'dd/MM/yyyy' }}</td>
+                <td class="px-6 py-4 text-center">
+                  <button
+                    (click)="toggleUserStatus(usr)"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md border active:scale-95 transition-all"
+                    [ngClass]="usr.isActive ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' : 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100'"
+                  >
+                    {{ usr.isActive ? 'Active' : 'Suspended' }}
+                  </button>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button
+                      (click)="openViewModal(usr)"
+                      class="p-1.5 text-zinc-555 hover:text-emerald-650 bg-white border border-zinc-200 hover:border-emerald-500/30 rounded-lg transition-all"
+                      title="View Details"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                    <button
+                      (click)="openEditModal(usr)"
+                      class="p-1.5 text-zinc-555 hover:text-blue-600 bg-white border border-zinc-200 hover:border-blue-500/30 rounded-lg transition-all"
+                      title="Edit user / assign role"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                    <button
+                      (click)="onDelete(usr)"
+                      class="p-1.5 text-zinc-555 hover:text-rose-600 bg-white border border-zinc-200 hover:border-rose-500/30 rounded-lg transition-all"
+                      title="Delete user"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-zinc-500">
+                  <svg class="w-12 h-12 text-zinc-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <p class="text-sm font-semibold">No accounts found</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      @if (totalFilteredCount() > 0) {
+        <div class="px-6 py-4 bg-zinc-50 border-t border-zinc-200 flex items-center justify-between flex-wrap gap-4">
+          <span class="text-xs text-zinc-500 font-medium">
+            Showing {{ (currentPage() - 1) * pageSize() + 1 }} to {{ Math.min(currentPage() * pageSize(), totalFilteredCount()) }} of {{ totalFilteredCount() }} accounts
+          </span>
+          <div class="flex items-center gap-1.5">
+            <button
+              type="button"
+              [disabled]="currentPage() === 1"
+              (click)="onPageChange(currentPage() - 1)"
+              class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg disabled:opacity-40 transition-colors"
+              title="Previous Page"
+            >
+              <svg class="w-4 h-4 text-zinc-650" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            @for (p of [].constructor(totalPages()); track $index) {
+              <button
+                type="button"
+                (click)="onPageChange($index + 1)"
+                [ngClass]="$index + 1 === currentPage() ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-600/10' : 'bg-white border-zinc-200 text-zinc-650 hover:bg-zinc-50'"
+                class="w-8 h-8 flex items-center justify-center border text-xs font-semibold rounded-lg transition-all"
+              >
+                {{ $index + 1 }}
+              </button>
+            }
+
+            <button
+              type="button"
+              [disabled]="currentPage() === totalPages()"
+              (click)="onPageChange(currentPage() + 1)"
+              class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg disabled:opacity-40 transition-colors"
+              title="Next Page"
+            >
+              <svg class="w-4 h-4 text-zinc-650" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Form Modal -->
+  @if (isModalOpen()) {
+    <div class="fixed inset-0 z-40 bg-zinc-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
+      <div class="w-full max-w-md bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <h2 class="text-lg font-bold text-zinc-900">
+            {{ isEditing() ? 'Edit User / Assign Role' : 'Register New User' }}
+          </h2>
+          <button (click)="closeModal()" class="text-zinc-400 hover:text-zinc-700 transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Supplier redirect notice -->
+        @if (selectedRoleValue() === 'Supplier') {
+          <div class="flex items-start gap-3 p-3.5 bg-blue-50 border border-blue-200 rounded-xl">
+            <svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-xs text-blue-700 leading-relaxed">
+              Assigning the <strong>Supplier</strong> role requires extra company details.
+              The user's role will be updated, then you'll be redirected to the Suppliers page to fill in their profile.
+            </p>
+          </div>
+        }
+
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="space-y-4">
+          <!-- Email -->
+          <div class="space-y-1">
+            <label for="usrEmail" class="text-xs font-semibold text-zinc-500">Email Address</label>
+            <input
+              id="usrEmail"
+              type="email"
+              formControlName="email"
+              placeholder="user@imscompany.com"
+              class="w-full px-3 py-2 bg-white border focus:ring-1 focus:ring-blue-500 rounded-xl text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-all"
+              [ngClass]="isInvalid('email') ? 'border-rose-400 focus:border-rose-500' : 'border-zinc-200 focus:border-blue-500'"
+            />
+            @if (isInvalid('email')) {
+              <p class="text-[10px] text-rose-600 font-medium">
+                @if (userForm.get('email')?.errors?.['required']) { Email is required. }
+                @else if (userForm.get('email')?.errors?.['email']) { Please enter a valid email address. }
+              </p>
+            }
+          </div>
+
+          <!-- Password & Confirm (Only on Create) -->
+          @if (!isEditing()) {
+            <div class="space-y-1">
+              <label for="usrPass" class="text-xs font-semibold text-zinc-500">Password</label>
+              <input
+                id="usrPass"
+                type="password"
+                formControlName="password"
+                placeholder="••••••••"
+                class="w-full px-3 py-2 bg-white border focus:ring-1 focus:ring-blue-500 rounded-xl text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-all"
+                [ngClass]="isInvalid('password') ? 'border-rose-400 focus:border-rose-500' : 'border-zinc-200 focus:border-blue-500'"
+              />
+              @if (isInvalid('password')) {
+                <p class="text-[10px] text-rose-600 font-medium">
+                  @if (userForm.get('password')?.errors?.['required']) { Password is required. }
+                  @else if (userForm.get('password')?.errors?.['minlength']) { Password must be at least 6 characters. }
+                </p>
+              }
+            </div>
+            <div class="space-y-1">
+              <label for="usrConfirmPass" class="text-xs font-semibold text-zinc-500">Confirm Password</label>
+              <input
+                id="usrConfirmPass"
+                type="password"
+                formControlName="confirmPassword"
+                placeholder="••••••••"
+                class="w-full px-3 py-2 bg-white border focus:ring-1 focus:ring-blue-500 rounded-xl text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-all"
+                [ngClass]="(isInvalid('confirmPassword') || (userForm.hasError('mismatch') && userForm.get('confirmPassword')?.touched)) ? 'border-rose-450 focus:border-rose-450' : 'border-zinc-200 focus:border-blue-500'"
+              />
+              @if (isInvalid('confirmPassword')) {
+                <p class="text-[10px] text-rose-600 font-medium">Please confirm your password.</p>
+              } @else if (userForm.hasError('mismatch') && userForm.get('confirmPassword')?.touched) {
+                <p class="text-[10px] text-rose-600 font-medium">Passwords do not match.</p>
+              }
+            </div>
+          }
+
+          <!-- Role Selector -->
+          <div class="space-y-1">
+            <label for="usrRole" class="text-xs font-semibold text-zinc-500">Assign Role</label>
+            <select
+              id="usrRole"
+              formControlName="role"
+              class="w-full px-3 py-2 bg-white border border-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl text-sm text-zinc-900 outline-none transition-all"
+            >
+              <option value="Staff">Staff (Pending — no access)</option>
+              <option value="Admin">Admin</option>
+              <option value="InventoryManager">Inventory Manager</option>
+              <option value="Supplier">Supplier ↗ (redirects to supplier form)</option>
+            </select>
+          </div>
+
+          <!-- Status Toggles (Only on Edit) -->
+          @if (isEditing()) {
+            <div class="flex flex-col gap-2.5 py-1">
+              <div class="flex items-center gap-2">
+                <input
+                  id="usrActive"
+                  type="checkbox"
+                  formControlName="isActive"
+                  class="w-4 h-4 rounded bg-white border-zinc-300 focus:ring-blue-500 text-blue-600"
+                />
+                <label for="usrActive" class="text-xs font-semibold text-zinc-700">Account is Active</label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  id="usrEmailVerified"
+                  type="checkbox"
+                  formControlName="isEmailVerified"
+                  class="w-4 h-4 rounded bg-white border-zinc-300 focus:ring-blue-500 text-blue-600"
+                />
+                <label for="usrEmailVerified" class="text-xs font-semibold text-zinc-700">Email is Verified</label>
+              </div>
+            </div>
+          }
+
+          <!-- Footer Buttons -->
+          <div class="flex gap-3 pt-2">
+            <button
+              type="button"
+              (click)="closeModal()"
+              class="flex-1 py-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-700 font-semibold text-sm rounded-xl transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="userForm.invalid || isSubmitting()"
+              class="flex-1 py-2 font-semibold text-sm rounded-xl shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              [ngClass]="selectedRoleValue() === 'Supplier'
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'"
+            >
+              @if (isSubmitting()) {
+                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+              } @else if (selectedRoleValue() === 'Supplier') {
+                Save & Go to Supplier Form ↗
+              } @else {
+                {{ isEditing() ? 'Save Changes' : 'Register' }}
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <app-confirm-modal
+    [isOpen]="deleteModalOpen()"
+    title="Delete User Account"
+    [message]="'Are you sure you want to delete \'' + userToDelete()?.email + '\'? This cannot be undone.'"
+    (confirm)="confirmDelete()"
+    (cancel)="cancelDelete()"
+  ></app-confirm-modal>
+
+  <!-- DETAIL VIEW USER MODAL -->
+  @if (viewModalOpen(); as isOpen) {
+    @if (selectedUserForView(); as usr) {
+      <div class="fixed inset-0 z-40 bg-zinc-900/30 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150" (click)="closeViewModal()">
+        <div class="w-full max-w-lg bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200" (click)="$event.stopPropagation()">
+          
+          <!-- Header -->
+          <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+            <div>
+              <h2 class="text-lg font-bold text-zinc-900">User Account Details</h2>
+              <span class="text-xs text-zinc-450 mt-0.5 block">User ID: #{{ usr.userId }}</span>
+            </div>
+            <button (click)="closeViewModal()" class="text-zinc-400 hover:text-zinc-650 transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Info fields -->
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="text-xs font-semibold text-zinc-400 block uppercase">Email Address</span>
+              <span class="font-bold text-zinc-900 text-base break-all">{{ usr.email }}</span>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-zinc-400 block uppercase">Security Role</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 text-[10px] font-semibold rounded-full border uppercase tracking-wider mt-1"
+                [ngClass]="getRoleBadgeClass(usr.role)">
+                {{ usr.role === 'InventoryManager' ? 'Inv. Manager' : usr.role }}
+              </span>
+            </div>
+            <div class="border-t border-zinc-100 pt-3">
+              <span class="text-xs font-semibold text-zinc-400 block uppercase">Status</span>
+              <span class="inline-flex items-center px-2 py-0.5 text-xs font-bold rounded-full border uppercase tracking-wider mt-1"
+                [ngClass]="usr.isActive ? 'bg-emerald-50 border-emerald-250 text-emerald-700' : 'bg-rose-50 border-rose-250 text-rose-700'">
+                {{ usr.isActive ? 'Active' : 'Suspended' }}
+              </span>
+            </div>
+            <div class="border-t border-zinc-100 pt-3">
+              <span class="text-xs font-semibold text-zinc-400 block uppercase">Email Verification</span>
+              <span class="inline-flex items-center px-2 py-0.5 text-xs font-bold rounded-full border uppercase tracking-wider mt-1"
+                [ngClass]="usr.isEmailVerified ? 'bg-emerald-50 border-emerald-250 text-emerald-700' : 'bg-amber-50 border-amber-250 text-amber-700'">
+                {{ usr.isEmailVerified ? 'Verified' : 'Unverified' }}
+              </span>
+            </div>
+            <div class="border-t border-zinc-100 pt-3 col-span-2">
+              <span class="text-xs font-semibold text-zinc-400 block uppercase">Created Date</span>
+              <span class="text-zinc-800 font-semibold block mt-0.5">{{ usr.createdAt | date:'dd MMMM yyyy, hh:mm a' }}</span>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="border-t border-zinc-100 pt-4 flex gap-3">
+            <button (click)="closeViewModal()" class="w-full py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-850 font-semibold text-sm rounded-xl transition-all">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    @}
+  }
+</div>

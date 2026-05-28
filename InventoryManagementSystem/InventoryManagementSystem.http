@@ -1,0 +1,6 @@
+@InventoryManagementSystem_HostAddress = http://localhost:5053
+
+GET {{InventoryManagementSystem_HostAddress}}/api/products/1
+Accept: application/json
+
+###

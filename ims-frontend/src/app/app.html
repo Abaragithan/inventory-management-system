@@ -1,0 +1,41 @@
+<app-toast />
+
+@if (authService.isLoggedIn()) {
+  @if (authService.currentUser()?.role === 'Staff') {
+    <!-- Staff users see only the pending approval page, no shell layout -->
+    <router-outlet />
+  } @else {
+    <div class="flex h-screen bg-zinc-100 text-zinc-900 overflow-hidden font-sans">
+      <!-- Collapsible Sidebar Navigation -->
+      @if (authService.currentUser()?.role === 'Supplier') {
+        <app-supplier-sidebar />
+      } @else {
+        <app-sidebar />
+      }
+
+      <!-- Main Content Panel -->
+      <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Top Header Navigation -->
+        <app-header />
+
+        <!-- Scrollable main section -->
+        <main class="flex-1 overflow-y-auto p-6 md:p-8 bg-zinc-100">
+          <div class="max-w-7xl mx-auto space-y-6">
+            <router-outlet />
+          </div>
+        </main>
+      </div>
+    </div>
+  }
+} @else {
+  <!-- Clean background wrapper for unauthenticated views (Login, Register) -->
+  <div class="min-h-screen bg-zinc-100 text-zinc-900 font-sans flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Ambient glowing backgrounds for design aesthetic -->
+    <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-sky-400/5 rounded-full blur-3xl pointer-events-none"></div>
+    
+    <div class="w-full max-w-md z-10">
+      <router-outlet />
+    </div>
+  </div>
+}

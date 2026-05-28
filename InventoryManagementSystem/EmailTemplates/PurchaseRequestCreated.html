@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f4f4f7; }
+        .container { max-width: 600px; margin: 30px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e8e8e8; }
+        .header { background-color: #0f172a; padding: 30px; text-align: center; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+        .content { padding: 40px; background-color: #ffffff; }
+        .content h2 { color: #0f172a; margin-top: 0; font-size: 20px; }
+        .highlight { font-weight: bold; color: #3b82f6; }
+        .btn-container { text-align: center; margin: 35px 0; }
+        .btn { display: inline-block; padding: 14px 28px; background-color: #0f172a; color: #ffffff !important; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; transition: background-color 0.2s; }
+        .btn:hover { background-color: #1e293b; }
+        .footer { background-color: #f8fafc; padding: 25px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #f1f5f9; }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>Inventory Management System</h1>
+        </div>
+        <div class='content'>
+            <h2>New Purchase Order Notification</h2>
+            <p>Dear {SupplierName},</p>
+            <p>We have submitted a new purchase request to you. Please log in to the Supplier Portal to view, accept, or update the status of this order.</p>
+            <p>Purchase Request Reference: <span class='highlight'>{RequestNumber}</span></p>
+            <div class='btn-container'>
+                <a href='http://localhost:4200/login' class='btn' target='_blank'>Go to Supplier Portal</a>
+            </div>
+            <p>Please review this order as soon as possible. Thank you for your partnership.</p>
+        </div>
+        <div class='footer'>
+            <p>&copy; {Year} Inventory Management System. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

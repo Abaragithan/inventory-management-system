@@ -1,0 +1,317 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Categories</h1>
+      <p class="text-zinc-555 text-sm mt-1">Organize your products into classification groups.</p>
+    </div>
+    <button
+      (click)="openCreateModal()"
+      class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-md shadow-blue-600/10 transition-all flex items-center gap-2 self-start"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Add Category
+    </button>
+  </div>
+
+  <!-- Statistics Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+    <!-- Total Categories -->
+    <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-xl p-4 transition-all duration-300 hover:border-zinc-300 shadow-sm flex items-center gap-4">
+      <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-blue-500/5 rounded-full blur-lg group-hover:scale-125 transition-transform"></div>
+      <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Total Categories</span>
+        <h3 class="text-2xl font-bold text-zinc-900 mt-0.5 leading-none">{{ totalCategoriesCount() }}</h3>
+        <p class="text-[11px] text-zinc-500 mt-1 truncate">Product classifications</p>
+      </div>
+    </div>
+
+    <!-- Described -->
+    <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-xl p-4 transition-all duration-300 hover:border-zinc-300 shadow-sm flex items-center gap-4">
+      <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-500/5 rounded-full blur-lg group-hover:scale-125 transition-transform"></div>
+      <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6M9 16h6m-6-8h6m-9-4h12a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" />
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Described</span>
+        <h3 class="text-2xl font-bold text-zinc-900 mt-0.5 leading-none">{{ categoriesWithDescriptionCount() }}</h3>
+        <p class="text-[11px] text-zinc-500 mt-1 truncate">Fully documented</p>
+      </div>
+    </div>
+
+    <!-- Needs Details -->
+    <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-xl p-4 transition-all duration-300 hover:border-zinc-300 shadow-sm flex items-center gap-4">
+      <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-amber-500/5 rounded-full blur-lg group-hover:scale-125 transition-transform"></div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" [ngClass]="categoriesWithoutDescriptionCount() > 0 ? 'bg-amber-50 border border-amber-100 text-amber-600' : 'bg-zinc-50 border border-zinc-200 text-zinc-450'">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Needs Details</span>
+        <h3 class="text-2xl font-bold mt-0.5 leading-none" [ngClass]="categoriesWithoutDescriptionCount() > 0 ? 'text-amber-600' : 'text-zinc-900'">{{ categoriesWithoutDescriptionCount() }}</h3>
+        <p class="text-[11px] text-zinc-500 mt-1 truncate">Missing definitions</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="flex gap-4 p-4 bg-white border border-zinc-200 shadow-sm rounded-2xl">
+    <div class="relative flex-1">
+      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </span>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search categories by name or description..."
+        class="w-full pl-10 pr-4 py-2 bg-white border border-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl text-sm text-zinc-900 placeholder-zinc-400 transition-all outline-none"
+      />
+    </div>
+  </div>
+
+  <!-- Categories Cards Grid -->
+  @if (isLoading()) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <app-skeleton type="card"></app-skeleton>
+      <app-skeleton type="card"></app-skeleton>
+      <app-skeleton type="card"></app-skeleton>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (cat of categories(); track cat.categoryId) {
+        <div class="bg-white border border-zinc-200/80 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-300 shadow-sm transition-all group relative">
+          <div class="space-y-2">
+            <h3 class="text-lg font-bold text-zinc-900 group-hover:text-blue-600 transition-colors">
+              {{ cat.name }}
+            </h3>
+            <p class="text-sm text-zinc-550 line-clamp-3">
+              {{ cat.description || 'No description provided.' }}
+            </p>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 mt-6 pt-4 border-t border-zinc-100">
+            <button
+              (click)="openViewModal(cat)"
+              class="p-1.5 text-zinc-550 hover:text-emerald-650 bg-white border border-zinc-200 hover:border-emerald-500/30 rounded-lg transition-all"
+              title="View Details"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+            <button
+              (click)="openEditModal(cat)"
+              class="px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+            >
+              Edit
+            </button>
+            <button
+              (click)="onDelete(cat)"
+              class="px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-span-full py-16 text-center text-zinc-400">
+          <svg class="w-12 h-12 text-zinc-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          <p class="text-sm font-semibold">No categories registered</p>
+          <p class="text-xs mt-1">Start by creating a category group.</p>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination Controls -->
+    @if (totalFilteredCount() > 0) {
+      <div class="px-6 py-4 bg-zinc-50 border border-zinc-200 border-t-0 flex items-center justify-between flex-wrap gap-4 rounded-b-2xl shadow-sm">
+        <span class="text-xs text-zinc-500 font-medium">
+          Showing {{ (currentPage() - 1) * pageSize() + 1 }} to {{ Math.min(currentPage() * pageSize(), totalFilteredCount()) }} of {{ totalFilteredCount() }} categories
+        </span>
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            [disabled]="currentPage() === 1"
+            (click)="onPageChange(currentPage() - 1)"
+            class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg disabled:opacity-40 transition-colors"
+            title="Previous Page"
+          >
+            <svg class="w-4 h-4 text-zinc-650" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          @for (p of [].constructor(totalPages()); track $index) {
+            <button
+              type="button"
+              (click)="onPageChange($index + 1)"
+              [ngClass]="$index + 1 === currentPage() ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-600/10' : 'bg-white border-zinc-200 text-zinc-650 hover:bg-zinc-50'"
+              class="w-8 h-8 flex items-center justify-center border text-xs font-semibold rounded-lg transition-all"
+            >
+              {{ $index + 1 }}
+            </button>
+          }
+
+          <button
+            type="button"
+            [disabled]="currentPage() === totalPages()"
+            (click)="onPageChange(currentPage() + 1)"
+            class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg disabled:opacity-40 transition-colors"
+            title="Next Page"
+          >
+            <svg class="w-4 h-4 text-zinc-650" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Custom Form Modal Dialog -->
+  @if (isModalOpen()) {
+    <!-- Backdrop -->
+    <div class="fixed inset-0 z-40 bg-zinc-900/30 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
+      <!-- Modal Card -->
+      <div class="w-full max-w-md bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <h2 class="text-lg font-bold text-zinc-900">
+            {{ isEditing() ? 'Modify Category' : 'New Category' }}
+          </h2>
+          <button (click)="closeModal()" class="text-zinc-400 hover:text-zinc-600">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="space-y-4">
+          <div class="space-y-1">
+            <label for="catName" class="text-xs font-semibold text-zinc-600">Category Name</label>
+            <input
+              id="catName"
+              type="text"
+              formControlName="name"
+              placeholder="e.g. Electronics, Raw Materials"
+              class="w-full px-3 py-2 bg-white border rounded-xl text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-all"
+              [ngClass]="categoryForm.get('name')?.touched && categoryForm.get('name')?.invalid ? 'border-rose-450 focus:border-rose-450' : 'border-zinc-200 focus:border-blue-500'"
+            />
+            @if (categoryForm.get('name')?.touched && categoryForm.get('name')?.invalid) {
+              <p class="text-[10px] text-rose-600 font-medium mt-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
+                @if (categoryForm.get('name')?.hasError('required')) {
+                  Category name is required.
+                } @else if (categoryForm.get('name')?.hasError('maxlength')) {
+                  Category name cannot exceed 100 characters.
+                }
+              </p>
+            }
+          </div>
+
+          <div class="space-y-1">
+            <label for="catDesc" class="text-xs font-semibold text-zinc-600">Description</label>
+            <textarea
+              id="catDesc"
+              formControlName="description"
+              rows="3"
+              placeholder="Write a brief classification details..."
+              class="w-full px-3 py-2 bg-white border rounded-xl text-sm text-zinc-900 placeholder-zinc-400 outline-none resize-none transition-all"
+              [ngClass]="categoryForm.get('description')?.touched && categoryForm.get('description')?.invalid ? 'border-rose-450 focus:border-rose-450' : 'border-zinc-200 focus:border-blue-500'"
+            ></textarea>
+            @if (categoryForm.get('description')?.touched && categoryForm.get('description')?.invalid) {
+              <p class="text-[10px] text-rose-600 font-medium mt-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
+                @if (categoryForm.get('description')?.hasError('maxlength')) {
+                  Description cannot exceed 500 characters.
+                }
+              </p>
+            }
+          </div>
+
+          <!-- Action buttons -->
+          <div class="flex gap-3 pt-2">
+            <button
+              type="button"
+              (click)="closeModal()"
+              class="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-semibold text-sm rounded-xl transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="categoryForm.invalid"
+              class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-md shadow-blue-600/10 transition-all disabled:opacity-50"
+            >
+              {{ isEditing() ? 'Save' : 'Create' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <app-confirm-modal
+    [isOpen]="deleteModalOpen()"
+    title="Delete Category"
+    [message]="'Are you sure you want to delete category \'' + categoryToDelete()?.name + '\'?'"
+    (confirm)="confirmDelete()"
+    (cancel)="cancelDelete()"
+  ></app-confirm-modal>
+
+  <!-- DETAIL VIEW CATEGORY MODAL -->
+  @if (viewModalOpen(); as isOpen) {
+    @if (selectedCategoryForView(); as cat) {
+      <div class="fixed inset-0 z-40 bg-zinc-900/30 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150" (click)="closeViewModal()">
+        <div class="w-full max-w-md bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-200" (click)="$event.stopPropagation()">
+          
+          <!-- Header -->
+          <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+            <h2 class="text-lg font-bold text-zinc-900">Category Details</h2>
+            <button (click)="closeViewModal()" class="text-zinc-400 hover:text-zinc-650 transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Content Details -->
+          <div class="space-y-4 text-sm">
+            <div>
+              <span class="text-xs font-semibold text-zinc-400 block uppercase">Category Name</span>
+              <span class="font-bold text-zinc-900 text-base">{{ cat.name }}</span>
+            </div>
+            
+            <div class="bg-zinc-50 border border-zinc-150 p-4 rounded-xl">
+              <span class="text-xs font-bold text-zinc-455 block uppercase mb-1">Description</span>
+              <p class="text-xs text-zinc-755 whitespace-pre-line leading-relaxed">
+                {{ cat.description || 'No description provided.' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="border-t border-zinc-100 pt-4 flex gap-3">
+            <button (click)="closeViewModal()" class="w-full py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-850 font-semibold text-sm rounded-xl transition-all">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    @}
+  }
+</div>

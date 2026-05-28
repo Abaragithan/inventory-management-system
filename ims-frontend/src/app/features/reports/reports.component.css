@@ -1,0 +1,77 @@
+/* Reports Component Premium Stylesheet */
+
+@media print {
+  /* Hide interface controls */
+  app-sidebar,
+  app-supplier-sidebar,
+  app-header,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Expand main container to occupy full page width */
+  html, body, 
+  div.flex.h-screen,
+  div.flex-1,
+  main {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  /* Format tables for printable paging */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+    background-color: #f4f4f5 !important;
+  }
+
+  th, td {
+    border-bottom: 1px solid #e4e4e7 !important;
+    padding: 8px 12px !important;
+    color: #000 !important;
+  }
+
+  th {
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 11px !important;
+    letter-spacing: 0.05em !important;
+  }
+
+  /* Highlight totals in printing */
+  .print\:border-zinc-300 {
+    border: 1px solid #d4d4d8 !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* Hover effects for tabs */
+button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom table adjustments */
+table thead th {
+  letter-spacing: 0.05em;
+}
+
+table tbody tr {
+  transition: background-color 0.15s ease;
+}

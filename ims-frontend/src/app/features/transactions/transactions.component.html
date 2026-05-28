@@ -1,0 +1,351 @@
+<div class="space-y-6">
+  <!-- Page Title -->
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Stock Transactions</h1>
+    <p class="text-zinc-555 text-sm mt-1">Record inventory imports, sales exports, returns, or generic adjustments.</p>
+  </div>
+
+  <!-- Statistics Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+    <!-- Total Logged Actions -->
+    <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-xl p-4 transition-all duration-300 hover:border-zinc-300 shadow-sm flex items-center gap-4">
+      <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-blue-500/5 rounded-full blur-lg group-hover:scale-125 transition-transform"></div>
+      <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Total Logged Actions</span>
+        <h3 class="text-2xl font-bold text-zinc-900 mt-0.5 leading-none">{{ totalTransactionsCount() }}</h3>
+        <p class="text-[11px] text-zinc-500 mt-1 truncate">Recorded actions catalog</p>
+      </div>
+    </div>
+
+    <!-- Stock Imports -->
+    <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-xl p-4 transition-all duration-300 hover:border-zinc-300 shadow-sm flex items-center gap-4">
+      <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-500/5 rounded-full blur-lg group-hover:scale-125 transition-transform"></div>
+      <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Stock Imports</span>
+        <h3 class="text-2xl font-bold text-zinc-900 mt-0.5 leading-none">{{ stockInCount() }}</h3>
+        <p class="text-[11px] text-zinc-500 mt-1 truncate">Received supplier units</p>
+      </div>
+    </div>
+
+    <!-- Stock Exports -->
+    <div class="relative overflow-hidden group bg-white border border-zinc-200/80 rounded-xl p-4 transition-all duration-300 hover:border-zinc-300 shadow-sm flex items-center gap-4">
+      <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-rose-500/5 rounded-full blur-lg group-hover:scale-125 transition-transform"></div>
+      <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Stock Exports</span>
+        <h3 class="text-2xl font-bold text-zinc-900 mt-0.5 leading-none">{{ stockOutCount() }}</h3>
+        <p class="text-[11px] text-zinc-500 mt-1 truncate">Dispatched customer orders</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Record Transaction Form Card (Left Panel) -->
+    <div class="lg:col-span-1 bg-white border border-zinc-200 shadow-sm rounded-2xl p-6 h-fit space-y-6">
+      <h2 class="text-lg font-bold text-zinc-900">Adjust Stock Level</h2>
+
+      <form [formGroup]="txForm" (ngSubmit)="onSubmit()" class="space-y-5">
+        <!-- Product selection -->
+        <div class="space-y-1.5 relative">
+          <label class="text-xs font-semibold text-zinc-500">Target Product</label>
+          
+          <!-- Dropdown Trigger Button -->
+          <button
+            type="button"
+            (click)="isDropdownOpen.set(!isDropdownOpen())"
+            class="w-full px-3 py-2.5 bg-white border border-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl text-sm text-zinc-900 outline-none transition-all flex items-center justify-between text-left"
+            [ngClass]="txForm.get('productId')?.invalid && txForm.get('productId')?.touched ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : ''"
+          >
+            @if (selectedProduct(); as prod) {
+              <div class="truncate mr-2">
+                <span class="font-medium text-zinc-900">{{ prod.name }}</span>
+                <span class="text-zinc-400 text-xs ml-2 font-mono">({{ prod.barcode }})</span>
+              </div>
+              <span class="text-xs px-2 py-0.5 rounded border shrink-0" [ngClass]="getStockBadgeClass(prod)">
+                Stock: {{ prod.quantity }}
+              </span>
+            } @else {
+              <span class="text-zinc-400">Select catalog item</span>
+              <svg class="w-4 h-4 text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            }
+          </button>
+
+          <!-- Transparent Backdrop to close dropdown on click outside -->
+          @if (isDropdownOpen()) {
+            <div class="fixed inset-0 z-10" (click)="isDropdownOpen.set(false)"></div>
+          }
+
+          <!-- Dropdown Panel -->
+          @if (isDropdownOpen()) {
+            <div class="absolute left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl z-20 p-2 space-y-2 animate-in slide-in-from-top-1 duration-100">
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  [ngModel]="productSearchQuery()"
+                  (ngModelChange)="productSearchQuery.set($event)"
+                  placeholder="Search products by name or barcode..."
+                  class="w-full pl-8 pr-3 py-1.5 bg-zinc-50 border border-zinc-200 focus:border-blue-500 rounded-lg text-xs outline-none transition-all"
+                />
+              </div>
+
+              <div class="max-h-60 overflow-y-auto divide-y divide-zinc-100 pr-1">
+                @for (prod of filteredCatalogProducts(); track prod.productId) {
+                  <button
+                    type="button"
+                    (click)="selectProduct(prod)"
+                    class="w-full text-left px-3 py-2.5 hover:bg-zinc-50 rounded-lg transition-colors text-xs flex items-center justify-between gap-2"
+                  >
+                    <div class="truncate mr-2">
+                      <div class="font-semibold text-zinc-900 truncate">{{ prod.name }}</div>
+                      <div class="text-[10px] text-zinc-400 font-mono">{{ prod.barcode }}</div>
+                    </div>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-medium border shrink-0" [ngClass]="getStockBadgeClass(prod)">
+                      {{ prod.quantity }}
+                    </span>
+                  </button>
+                } @empty {
+                  <div class="text-xs text-zinc-400 text-center py-4">No matching products</div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Transaction Type Visual Select -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-zinc-500">Transaction Type</label>
+          <div class="grid grid-cols-2 gap-2">
+            @for (t of typeOptions; track t.value) {
+              <button
+                type="button"
+                (click)="setTxType(t.value)"
+                class="py-2.5 px-3 rounded-xl text-xs font-semibold border flex flex-col items-center justify-center gap-1.5 transition-all text-center"
+                [ngClass]="txForm.get('type')?.value === t.value
+                  ? t.activeClass
+                  : 'bg-white border-zinc-200 text-zinc-650 hover:border-zinc-300 hover:bg-zinc-50/50'"
+              >
+                <div [innerHTML]="t.icon" class="w-4 h-4 shrink-0"></div>
+                {{ t.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Quantity -->
+        <div class="space-y-1.5">
+          <label for="quantity" class="text-xs font-semibold text-zinc-500">
+            Adjusted Quantity
+            @if (txForm.get('type')?.value === 'Adjustment') {
+              <span class="text-zinc-400 font-normal ml-1">(positive to add, negative to subtract)</span>
+            }
+          </label>
+          <input
+            id="quantity"
+            type="number"
+            formControlName="quantity"
+            [placeholder]="txForm.get('type')?.value === 'Adjustment' ? '-5 or 10' : '10'"
+            class="w-full px-3 py-2.5 bg-white border border-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-all"
+          />
+        </div>
+
+        <!-- Notes -->
+        <div class="space-y-1.5">
+          <label for="notes" class="text-xs font-semibold text-zinc-500">Add Notes / Reference</label>
+          <textarea
+            id="notes"
+            formControlName="notes"
+            rows="3"
+            placeholder="Reference PO, invoice code, or manual adjustment cause..."
+            class="w-full px-3 py-2.5 bg-white border border-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl text-sm text-zinc-900 placeholder-zinc-400 outline-none resize-none transition-all"
+          ></textarea>
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          [disabled]="txForm.invalid || isSubmitting()"
+          class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-sm hover:shadow active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          @if (isSubmitting()) {
+            <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Processing...
+          } @else {
+            Record Transaction
+          }
+        </button>
+      </form>
+    </div>
+
+    <!-- Recent Transactions Log (Right Panel) -->
+    <div class="lg:col-span-2 bg-white border border-zinc-200 shadow-sm rounded-2xl p-6 flex flex-col justify-between space-y-6 min-h-[500px]">
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-bold text-zinc-900">Transaction Logs</h2>
+          <button
+            (click)="loadRecentTransactions()"
+            class="p-1.5 text-zinc-505 hover:text-zinc-700 bg-white border border-zinc-200 hover:border-zinc-300 rounded-xl hover:bg-zinc-100/50 transition-all"
+            title="Refresh"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.5" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Filters Toolbar -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <!-- Search query -->
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              [ngModel]="rawSearchQuery()"
+              (ngModelChange)="onSearchChange($event)"
+              placeholder="Search product, user or notes..."
+              class="w-full pl-9 pr-3 py-2 bg-white border border-zinc-200 focus:border-blue-500 rounded-xl text-xs text-zinc-900 placeholder-zinc-400 outline-none transition-all"
+            />
+          </div>
+          
+          <!-- Transaction Type Filter -->
+          <div class="w-full sm:w-40">
+            <select
+              [ngModel]="txTypeFilter()"
+              (ngModelChange)="onTypeFilterChange($event)"
+              class="w-full px-3 py-2 bg-white border border-zinc-200 focus:border-blue-500 rounded-xl text-xs text-zinc-900 outline-none transition-all"
+            >
+              <option value="">All Types</option>
+              <option value="StockIn">Stock In</option>
+              <option value="StockOut">Stock Out</option>
+              <option value="Adjustment">Adjustment</option>
+              <option value="Return">Return</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      @if (isLoadingRecent()) {
+        <app-skeleton type="table" [rows]="6"></app-skeleton>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-zinc-200 text-xs font-semibold text-zinc-505 uppercase bg-zinc-100/50">
+                <th class="px-4 py-3">Product</th>
+                <th class="px-4 py-3 text-center">Type</th>
+                <th class="px-4 py-3 text-right">Adjustment</th>
+                <th class="px-4 py-3">Recorded By</th>
+                <th class="px-4 py-3">Date</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100">
+              @for (tx of transactions(); track tx.transactionId) {
+                <tr class="hover:bg-zinc-100/40 transition-all text-xs group">
+                  <td class="px-4 py-3.5">
+                    <div class="font-semibold text-zinc-900">{{ tx.productName }}</div>
+                    @if (tx.notes) {
+                      <div class="text-[10px] text-zinc-400 italic mt-0.5 max-w-[200px] truncate" [title]="tx.notes">
+                        "{{ tx.notes }}"
+                      </div>
+                    }
+                  </td>
+                  <td class="px-4 py-3.5 text-center">
+                    <span class="inline-block px-2.5 py-0.5 text-[9px] font-bold rounded-full uppercase tracking-wider" [ngClass]="getTypeBadgeClass(tx.type)">
+                      {{ tx.type }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3.5 text-right font-bold" [ngClass]="getTransactionColorClass(tx)">
+                    {{ getTransactionSign(tx) }}{{ getTransactionQuantity(tx) }}
+                  </td>
+                  <td class="px-4 py-3.5 text-zinc-505 font-mono">{{ tx.userEmail }}</td>
+                  <td class="px-4 py-3.5 text-zinc-400 whitespace-nowrap">{{ tx.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="px-4 py-12 text-center text-zinc-505">
+                    <svg class="w-12 h-12 text-zinc-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <p class="text-sm font-semibold">No stock logs found</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        @if (totalFilteredCount() > 0) {
+          <div class="px-6 py-4 bg-zinc-50 border-t border-zinc-150 flex items-center justify-between flex-wrap gap-4 rounded-b-2xl">
+            <span class="text-xs text-zinc-500 font-medium">
+              Showing {{ (txCurrentPage() - 1) * txPageSize() + 1 }} to {{ Math.min(txCurrentPage() * txPageSize(), totalFilteredCount()) }} of {{ totalFilteredCount() }} logs
+            </span>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                [disabled]="txCurrentPage() === 1"
+                (click)="onPageChange(txCurrentPage() - 1)"
+                class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg disabled:opacity-40 transition-colors"
+                title="Previous Page"
+              >
+                <svg class="w-4 h-4 text-zinc-655" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              @for (p of [].constructor(txTotalPages()); track $index) {
+                <button
+                  type="button"
+                  (click)="onPageChange($index + 1)"
+                  [ngClass]="$index + 1 === txCurrentPage() ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-600/10' : 'bg-white border-zinc-200 text-zinc-650 hover:bg-zinc-50'"
+                  class="w-8 h-8 flex items-center justify-center border text-xs font-semibold rounded-lg transition-all"
+                >
+                  {{ $index + 1 }}
+                </button>
+              }
+
+              <button
+                type="button"
+                [disabled]="txCurrentPage() === txTotalPages()"
+                (click)="onPageChange(txCurrentPage() + 1)"
+                class="p-2 border border-zinc-200 bg-white hover:bg-zinc-50 rounded-lg disabled:opacity-40 transition-colors"
+                title="Next Page"
+              >
+                <svg class="w-4 h-4 text-zinc-655" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>
